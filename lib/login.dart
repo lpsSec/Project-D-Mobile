@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:html';
 
+import 'package:Project_D_Mobile/register.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // ignore: import_of_legacy_library_into_null_safe
@@ -32,8 +33,8 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             headerSection(),
             textSection(),
-            buttonSection(),
-            buttonRegister()
+            buttonLogin(),
+            buttonGOTORegister()
           ],
         ),
       ),
@@ -70,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Container buttonSection() {
+  Container buttonLogin() {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 40.0,
@@ -91,22 +92,23 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-    Container buttonRegister() {
+    Container buttonGOTORegister() {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 40.0,
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
-        onPressed: userController.text == "" || passwordController.text == "" ? null : () {
+        onPressed: () {
           setState(() {
             _isLoading = true;
           });
-          signIn(userController.text, passwordController.text);
+          // TODO: method to redirect to the RegisterPage - onPressed?
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => RegisterPage()), (Route<dynamic> route) => false);
         },
         elevation: 0.0,
         color: Colors.purple.shade600,
-        child: Text("Cadastrar", style: TextStyle(color: Colors.white70)),
+        child: Text("Cadastro", style: TextStyle(color: Colors.white70)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       ),
     );
@@ -126,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
 
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
-              icon: Icon(Icons.email, color: Colors.white70),
+              icon: Icon(Icons.login, color: Colors.white70),
               hintText: "Nickname",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),

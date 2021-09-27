@@ -1,12 +1,13 @@
 import 'dart:convert';
+// import 'dart:ffi';
 
 import 'package:Project_D_Mobile/login.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:Project_D_Mobile/register.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -16,10 +17,20 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
 
   bool _isLoading = false;
+  int selected_avatar = 1; // 1 - no avatar
+
+  // NOTE: Here we can know the selected avatar [ avatar_id | if is checked]
+  Map<int, bool> avatar_check = {
+    2: false,
+    3: false,
+    4: false,
+    5: false,
+  };
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
+
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -32,8 +43,9 @@ class _RegisterPageState extends State<RegisterPage> {
           children: <Widget>[
             headerSection(),
             textSection(),
+            avatarContainer(),
             buttonRegister(),
-            buttonReturn()
+            buttonReturn(),
           ],
         ),
       ),
@@ -48,8 +60,8 @@ class _RegisterPageState extends State<RegisterPage> {
       'SU_PASSWORD': password,
       'SU_PHONENUMBER': phoneNumber,
       'SU_DATEBIRTHDAY': datebirthday,
-      'SU_PHOTO': 1, //TODO: hardcoded - implement checkbow with avatar icons.
-      'SU_TYPE': 2 // not admin user
+      'SU_PHOTO': selected_avatar,
+      'SU_TYPE': 2 // 2 - not admin user
     };
     var jsonResponse = null;
     var response = await http.post("https://project-d-api.herokuapp.com/auth/register",
@@ -64,11 +76,13 @@ class _RegisterPageState extends State<RegisterPage> {
           _isLoading = false;
         });
         sharedPreferences.setString("token", jsonResponse['token']);
-        nicknameController.text = "";
-        emailController.text = "";
-        passwordController.text = "";
-        phoneController.text = "";
-        bdayController.text = "";
+
+        // TODO: Clear text field - *This code does not work
+        nicknameController.clear();
+        emailController.clear();
+        passwordController.clear();
+        phoneController.clear();
+        bdayController.clear();
 
         // TODO: display successful msg if reponse status is 200.
       }
@@ -87,8 +101,7 @@ class _RegisterPageState extends State<RegisterPage> {
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
-        onPressed: nicknameController.text == "" /*|| passwordController.text == ""*/
-        || emailController.text == "" || phoneController.text == "" || bdayController.text == ""? null : () {
+        onPressed: () {
           setState(() {
             _isLoading = true;
           });
@@ -121,6 +134,80 @@ class _RegisterPageState extends State<RegisterPage> {
         child: Text("Voltar", style: TextStyle(color: Colors.white70)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       ),
+    );
+  }
+
+  Container avatarContainer() {
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          checkBoxSection(2),
+          avatarSection('assets/images/avatar.png'),
+          checkBoxSection(3),
+          avatarSection('assets/images/avatar2.png'),
+          checkBoxSection(4),
+          avatarSection('assets/images/avatarWoman.png'),
+          checkBoxSection(5),
+          avatarSection('assets/images/avatarWoman2.png'),
+        ]
+      ),
+    );
+  }
+
+  Container checkBoxSection(int avatar_id) {
+    return Container(
+
+    child: Checkbox(
+          value: avatar_check[avatar_id], // NOTE: -2 because avatar list id starts in 2 (2,3,4,5)
+          checkColor: Colors.white,
+          activeColor: Colors.blue,
+          onChanged: (value) {
+            setState(() {
+              
+              avatar_check[avatar_id] = value!;
+              
+              // deselect others checkBox - apply one the current checkBox
+              for(var id in avatar_check.keys)
+              {
+                if( id != avatar_id) {
+                  avatar_check[id] = false;
+                }
+              }
+
+              if( value ){
+                selected_avatar = avatar_id;
+              }
+            });
+          }),
+
+    );
+  }
+  Container avatarSection(String imagePath) {
+    var assetsImage = new AssetImage(imagePath);
+
+    return Container(
+    child: SizedBox(
+    child: CircleAvatar(
+      radius: 40.0,
+      backgroundColor: Colors.white,
+      child: CircleAvatar(
+        child: Align(
+          alignment: Alignment.bottomRight,
+          child: CircleAvatar(
+            backgroundColor: Colors.white,
+            radius: 12.0,
+            child: Icon(
+              Icons.camera_alt,
+              size: 15.0,
+              color: Color(0xFF404040),
+            ),
+          ),
+        ),
+        radius: 38.0,
+        backgroundImage: assetsImage,
+      ),
+    ),)
     );
   }
 
@@ -201,7 +288,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Container headerSection() {
     return Container(
-      margin: EdgeInsets.only(top: 50.0),
+      margin: EdgeInsets.only(top: 0.0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
       child: Text("Realizar cadastro",
           style: TextStyle(
@@ -210,15 +297,4 @@ class _RegisterPageState extends State<RegisterPage> {
               fontWeight: FontWeight.bold)),
     );
   }
-  // Container headerSection() {
-
-  //   var assetsImage = new AssetImage('assets/images/Logo.png');
-  //   var image = new Image(image: assetsImage, fit: BoxFit.cover);
-
-  //   return Container(
-  //     width: 250.0,
-  //     height: 250,
-  //           child: image
-  //   );
-  // }
 }

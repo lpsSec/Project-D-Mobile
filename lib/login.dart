@@ -78,7 +78,7 @@ class _LoginPageState extends State<LoginPage> {
       padding: EdgeInsets.symmetric(horizontal: 15.0),
       margin: EdgeInsets.only(top: 15.0),
       child: RaisedButton(
-        onPressed: userController.text == "" || passwordController.text == "" ? null : () {
+        onPressed: () {
           setState(() {
             _isLoading = true;
           });

@@ -48,7 +48,8 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("YourManga", style: TextStyle(color: Colors.black)),
+        title: Text("YourManga", style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.purple,
         actions: <Widget>[
           FlatButton(
             onPressed: () {

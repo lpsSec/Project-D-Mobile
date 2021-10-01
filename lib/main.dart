@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:convert';
 
 import 'package:Project_D_Mobile/editr_user_info.dart';
@@ -45,6 +47,8 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
+final TextEditingController searchController = new TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,12 +67,30 @@ class _MainPageState extends State<MainPage> {
         ],
       ),
       body:
-      // Center(child: Text("Main Page")),
-      IconButton( onPressed: () {},
+      Row(
+  children: <Widget>[
+    Expanded(
+      child:
+      TextField(
+              controller: searchController,
+              autofocus: false,
+              decoration:
+              InputDecoration(
+              icon: Icon(Icons.arrow_forward_ios_rounded),
+              hintText: 'Pesquisar...'),
+              onChanged: (text) {
+                // debugPrint("Text: $text"); 
+              },
+            )
+    ),
+      IconButton( onPressed: () {
+        var search = searchController.text;
+        debugPrint("Search: $search");
+      },
       icon: const Icon(Icons.search),
       ),
-      
-      
+  ],
+),          
       // Drawer
       drawer: Drawer(
         child: ListView(

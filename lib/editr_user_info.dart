@@ -117,7 +117,7 @@ bool _isLoading = false;
     body: jsonEncode(data)
     );
 
-    if(response.statusCode == 201) {
+    if(response.statusCode == 201) { //201 - HTTP Response 'Created'
       jsonResponse = json.decode(response.body);
       if(jsonResponse != null) {
         setState(() {

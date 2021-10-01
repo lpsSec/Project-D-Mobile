@@ -1,31 +1,25 @@
 import 'dart:convert';
+import 'dart:html';
+import 'dart:io';
 
 import 'package:Project_D_Mobile/login.dart';
+import 'package:Project_D_Mobile/main.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:Project_D_Mobile/register.dart';
+import 'package:Project_D_Mobile/editr_user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class RegisterPage extends StatefulWidget {
+class EditPage extends StatefulWidget {
   @override
   _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterPageState extends State<EditPage> {
 
-final _messangerKey = GlobalKey<ScaffoldMessengerState>();
+//final _messangerKey = GlobalKey<ScaffoldMessengerState>();
 bool _isLoading = false;
-int selected_avatar = 1; // 1 - no avatar
-
-// NOTE: Here we can know the selected avatar [ avatar_id | if is checked]
-Map<int, bool> avatar_check = {
-    2: false,
-    3: false,
-    4: false,
-    5: false,
-};
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +61,6 @@ Map<int, bool> avatar_check = {
           children: <Widget>[
             headerSection(),
             textSection(),
-            avatarContainer(),
             buttonRegister(),
             buttonReturn(),
           ],
@@ -76,9 +69,9 @@ Map<int, bool> avatar_check = {
     );
   }
 
-  registerUser(String nickname, login, password, phoneNumber, datebirthday ) async { /*NOTE: API needs SU_TYPE */
+  editUserInfo(String nickname, login, password, phoneNumber ) async { /*NOTE: API needs SU_TYPE */
     
-    if(nickname == "" || login == "" || password == "" || phoneNumber == "" || datebirthday == ""){
+    if(nickname == "" || login == "" || password == "" || phoneNumber == "" ){
         /* ON HOLD - Display error message
         _messangerKey.currentState?.showSnackBar(SnackBar(
         content: Text('Preencha os campos!'),
@@ -91,24 +84,40 @@ Map<int, bool> avatar_check = {
         // return;
     }
 
+  SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  var token = sharedPreferences.getString("token");
+  var user_id = sharedPreferences.getInt("user_id");
 
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    Map data = {
-      'SU_NICKNAME': nickname,
-      'SU_LOGINNAME': login,
-      'SU_PASSWORD': password,
-      'SU_PHONENUMBER': phoneNumber,
-      'SU_DATEBIRTHDAY': datebirthday,
-      'SU_PHOTO': selected_avatar,
-      'SU_TYPE': 2 // 2 - not admin user
-    };
+  // Create json map according data received
+  Map data = {
+    'SU_ID': user_id
+  };
+  if( nickname != "" )
+    data['SU_NICKNAME'] = nickname;
+  if( login != "" )
+    data['SU_LOGINNAME'] = login;
+  if( password != "" )
+    data['SU_PASSWORD'] = password;
+  if( phoneNumber != "" )
+    data['SU_PHONENUMBER'] = phoneNumber;
+
+    // Map data = {
+    //   'SU_ID': user_id,
+    //   'SU_NICKNAME': nickname,
+    //   'SU_LOGINNAME': login,
+    //   'SU_PASSWORD': password,   //password change is on hold - need to review on API backend
+    //   'SU_PHONENUMBER': phoneNumber,
+    // };
     var jsonResponse = null;
-    var response = await http.post("https://project-d-api.herokuapp.com/auth/register",
-    headers: {"Content-Type": "application/json"},
+    var response = await http.post("https://project-d-api.herokuapp.com/user/edit",
+    headers: {
+      "Content-Type": "application/json",
+    "Authorization": 'Baerer ' + token.toString()
+    },
     body: jsonEncode(data)
     );
 
-    if(response.statusCode == 200) {
+    if(response.statusCode == 201) {
       jsonResponse = json.decode(response.body);
       if(jsonResponse != null) {
         setState(() {
@@ -121,7 +130,6 @@ Map<int, bool> avatar_check = {
         emailController.clear();
         passwordController.clear();
         phoneController.clear();
-        bdayController.clear();
 
         // TODO: display successful msg if reponse status is 200.
       }
@@ -146,11 +154,11 @@ final TextEditingController errorMessage = new TextEditingController();
           setState(() {
             _isLoading = true;
           });
-          registerUser(nicknameController.text,  emailController.text,passwordController.text, phoneController.text, bdayController.text);
+          editUserInfo(nicknameController.text,  emailController.text,passwordController.text, phoneController.text);
         },
         elevation: 0.0,
         color: Colors.purple.shade600,
-        child: Text("Cadastrar", style: TextStyle(color: Colors.white70)),
+        child: Text("Alterar", style: TextStyle(color: Colors.white70)),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       ),
     );
@@ -172,7 +180,7 @@ final TextEditingController errorMessage = new TextEditingController();
           //       duration: Duration(seconds: 2)
           //       // action: SnackBarAction(label: 'UNDO', onPressed: () {}),
           //     ));
-          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()), (Route<dynamic> route) => false);
+          Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
         },
         elevation: 0.0,
         color: Colors.purple.shade600,
@@ -182,85 +190,10 @@ final TextEditingController errorMessage = new TextEditingController();
     );
   }
 
-  Container avatarContainer() {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          checkBoxSection(2),
-          avatarSection('assets/images/avatar.png'),
-          checkBoxSection(3),
-          avatarSection('assets/images/avatar2.png'),
-          checkBoxSection(4),
-          avatarSection('assets/images/avatarWoman.png'),
-          checkBoxSection(5),
-          avatarSection('assets/images/avatarWoman2.png'),
-        ]
-      ),
-    );
-  }
-
-  Container checkBoxSection(int avatar_id) {
-    return Container(
-
-    child: Checkbox(
-          value: avatar_check[avatar_id], // NOTE: -2 because avatar list id starts in 2 (2,3,4,5)
-          checkColor: Colors.white,
-          activeColor: Colors.blue,
-          onChanged: (value) {
-            setState(() {
-              
-              avatar_check[avatar_id] = value!;
-              
-              // deselect others checkBox - apply one the current checkBox
-              for(var id in avatar_check.keys)
-              {
-                if( id != avatar_id) {
-                  avatar_check[id] = false;
-                }
-              }
-
-              if( value ){
-                selected_avatar = avatar_id;
-              }
-            });
-          }),
-
-    );
-  }
-  Container avatarSection(String imagePath) {
-    var assetsImage = new AssetImage(imagePath);
-
-    return Container(
-    child: SizedBox(
-    child: CircleAvatar(
-      radius: 40.0,
-      backgroundColor: Colors.white,
-      child: CircleAvatar(
-        child: Align(
-          alignment: Alignment.bottomRight,
-          child: CircleAvatar(
-            backgroundColor: Colors.white,
-            radius: 12.0,
-            child: Icon(
-              Icons.camera_alt,
-              size: 15.0,
-              color: Color(0xFF404040),
-            ),
-          ),
-        ),
-        radius: 38.0,
-        backgroundImage: assetsImage,
-      ),
-    ),)
-    );
-  }
-
   final TextEditingController nicknameController = new TextEditingController();
   final TextEditingController emailController = new TextEditingController();
   final TextEditingController passwordController = new TextEditingController();
   final TextEditingController phoneController = new TextEditingController();
-  final TextEditingController bdayController = new TextEditingController();
 
   Container textSection() {
     return Container(
@@ -273,7 +206,7 @@ final TextEditingController errorMessage = new TextEditingController();
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.login, color: Colors.white70),
-              hintText: "Nickname",
+              hintText: "Novo Nickname",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -285,7 +218,7 @@ final TextEditingController errorMessage = new TextEditingController();
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.email, color: Colors.white70),
-              hintText: "Email",
+              hintText: "Novo Email",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -297,7 +230,7 @@ final TextEditingController errorMessage = new TextEditingController();
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.lock, color: Colors.white70),
-              hintText: "Senha",
+              hintText: "Nova Senha",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -309,19 +242,7 @@ final TextEditingController errorMessage = new TextEditingController();
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.phone, color: Colors.white70),
-              hintText: "Telefone",
-              border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
-              hintStyle: TextStyle(color: Colors.white70),
-            ),
-            ),
-            SizedBox(height: 30.0),
-            TextFormField(
-            controller: bdayController,
-            cursorColor: Colors.white,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
-              icon: Icon(Icons.date_range, color: Colors.white70),
-              hintText: "Data de aniverssario",
+              hintText: "Novo Telefone",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -335,7 +256,7 @@ final TextEditingController errorMessage = new TextEditingController();
     return Container(
       margin: EdgeInsets.only(top: 0.0),
       padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Realizar cadastro",
+      child: Text("Editar informações",
           style: TextStyle(
               color: Colors.white70,
               fontSize: 40.0,

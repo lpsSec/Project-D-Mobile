@@ -59,7 +59,11 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
+        
+        var jsonData = jsonResponse['data'];
+
         sharedPreferences.setString("token", jsonResponse['token']);
+        sharedPreferences.setInt("user_id", jsonData['SU_ID']);
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
       }
     }

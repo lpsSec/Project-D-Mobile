@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:Project_D_Mobile/editr_user_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -61,8 +62,28 @@ class _MainPageState extends State<MainPage> {
           ),
         ],
       ),
-      body: Center(child: Text("Main Page")),
-      drawer: Drawer(),
+      body:
+      // Center(child: Text("Main Page")),
+      IconButton( onPressed: () {},
+      icon: const Icon(Icons.search),
+      ),
+      
+      
+      // Drawer
+      drawer: Drawer(
+        child: ListView(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.edit),
+                title: Text("Editar"),
+                subtitle: Text("editar minhas informações pessoais."),
+                trailing: Icon(Icons.arrow_forward),
+                onTap: () {
+                  Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => EditPage()), (Route<dynamic> route) => false);
+                }
+               )
+            ],),
+      ),
     );
   }
 }

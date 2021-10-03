@@ -92,22 +92,15 @@ bool _isLoading = false;
   Map data = {
     'SU_ID': user_id
   };
-  if( nickname != "" )
-    data['SU_NICKNAME'] = nickname;
-  if( login != "" )
-    data['SU_LOGINNAME'] = login;
-  if( password != "" )
-    data['SU_PASSWORD'] = password;
-  if( phoneNumber != "" )
-    data['SU_PHONENUMBER'] = phoneNumber;
-
-    // Map data = {
-    //   'SU_ID': user_id,
-    //   'SU_NICKNAME': nickname,
-    //   'SU_LOGINNAME': login,
-    //   'SU_PASSWORD': password,   //password change is on hold - need to review on API backend
-    //   'SU_PHONENUMBER': phoneNumber,
-    // };
+  if( nickname != "" ){
+    data['SU_NICKNAME'] = nickname;}
+  if( login != "" ){
+    data['SU_LOGINNAME'] = login;}
+  if( password != "" ){
+    data['SU_PASSWORD'] = password;}
+  if( phoneNumber != "" ){
+    data['SU_PHONENUMBER'] = phoneNumber;}
+    
     var jsonResponse = null;
     var response = await http.post("https://project-d-api.herokuapp.com/user/edit",
     headers: {
@@ -175,10 +168,11 @@ final TextEditingController errorMessage = new TextEditingController();
           setState(() {
             _isLoading = true;
           });
+          // TEST
           // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //       content: Text('Added added into cart'),
+          //       content: Text('xxxxxxxxxxxxxxx'),
           //       duration: Duration(seconds: 2)
-          //       // action: SnackBarAction(label: 'UNDO', onPressed: () {}),
+          //       // action: SnackBarAction(label: 'OK', onPressed: () {}),
           //     ));
           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
         },

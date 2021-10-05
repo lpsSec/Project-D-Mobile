@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_linkify/flutter_linkify.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 void main() => runApp(MyApp());
 
@@ -29,6 +30,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+String manga_pdf_reading = "";
 
 class Manga{
     final int id;
@@ -69,7 +72,11 @@ Card mangaCard(String title, String img_path, int chapter, String archive) {
               children: [
                 TextButton(
                   child: const Text('LER'),
-                  onPressed: () {launch(archive);},
+                  onPressed: () {
+                    // launch(archive);
+                    debugPrint("Manga clicked: $title \nArchive: $archive");
+                    manga_pdf_reading = archive;
+                    },
                 ),
               ],
             )
@@ -140,6 +147,22 @@ class _MainPageState extends State<MainPage> {
     ),
       SizedBox(height: 75),
       IconButton( onPressed: () {
+
+        if( searchController.text.length < 3 )
+        {
+          showDialog(
+          context: context,
+          builder: (BuildContext context) {
+          return displayAlert("Alerta", "A busca deve conter pelo menos 3 caracteres.", "VOLTAR");
+          },
+          );
+
+          setState(() {
+            _isLoading = false;
+          });
+
+          return;
+        } 
         var search = searchController.text;
         searchForManga(search);
       },
@@ -147,7 +170,7 @@ class _MainPageState extends State<MainPage> {
       ),
   ],
 ),
-mangaList.isEmpty? Text("No manga found"):
+mangaList.isEmpty? Text("Nenhum manga encontrado."):
 
 Expanded(child:
 Container(
@@ -162,22 +185,8 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
       String link = snapshot.data[index].archive;
       String img = snapshot.data[index].img_path;
 
-      // WAY 2 - using card
+      // using card
       return mangaCard(title, img, 1, link);
-
-      // WAY 1 - using column
-      // return Column(
-      //   crossAxisAlignment: CrossAxisAlignment.start,
-      //   children: [
-      //     SizedBox(height: 25),
-      //     CircleAvatar(
-      //       radius: 50,
-      //       backgroundImage: NetworkImage(img),
-      //     ),
-      //     SizedBox(height: 5),
-      //     Text("Title: $title"),
-      //   ],
-      // );
     }
   );
 },
@@ -207,6 +216,20 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
     );
   }
   
+  AlertDialog displayAlert(String title, body_text, [button="OK"] ) {
+    AlertDialog alert = AlertDialog(
+    title: Text("$title"),
+    content: Text("$body_text"),
+    actions: [
+      TextButton(
+    child: Text("$button"),
+    onPressed: () { Navigator.pop(context);  },
+  ),
+  ],
+  );
+
+  return alert;
+  }
 
   checkLoginStatus() async {
     sharedPreferences = await SharedPreferences.getInstance();

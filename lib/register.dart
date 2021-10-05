@@ -15,7 +15,6 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
 
-final _messangerKey = GlobalKey<ScaffoldMessengerState>();
 bool _isLoading = false;
 int selected_avatar = 1; // 1 - no avatar
 
@@ -31,30 +30,6 @@ Map<int, bool> avatar_check = {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
 
-  /* TEST - material app to use scaffoldMessengerKey - Display message error
-  return MaterialApp(
-    scaffoldMessengerKey: _messangerKey,
-      home: Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Colors.purple, Colors.purple.shade400],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter),
-        ),
-        child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
-          children: <Widget>[
-            headerSection(),
-            textSection(),
-            avatarContainer(),
-            buttonRegister(),
-            buttonReturn(),
-          ],
-        ),
-      ),
-    ),
-  );
-  */
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -76,19 +51,37 @@ Map<int, bool> avatar_check = {
     );
   }
 
-  registerUser(String nickname, login, password, phoneNumber, datebirthday ) async { /*NOTE: API needs SU_TYPE */
+  AlertDialog displayAlert(String title, body_text, [button="OK"] ) {
+    AlertDialog alert = AlertDialog(
+    title: Text("$title"),
+    content: Text("$body_text"),
+    actions: [
+      TextButton(
+    child: Text("$button"),
+    onPressed: () { Navigator.pop(context);  },
+  ),
+  ],
+  );
+
+  return alert;
+  }
+
+  registerUser(String nickname, login, password, phoneNumber, datebirthday ) async {
     
     if(nickname == "" || login == "" || password == "" || phoneNumber == "" || datebirthday == ""){
-        /* ON HOLD - Display error message
-        _messangerKey.currentState?.showSnackBar(SnackBar(
-        content: Text('Preencha os campos!'),
-        duration: Duration(seconds: 3),
-        // action: SnackBarAction(label: 'OK', onPressed: () {
-        //           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => RegisterPage()), (Route<dynamic> route) => false);
-        //         }),
-        ));
-        */
-        // return;
+
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return displayAlert("Alerta", "Preencha os campos!", "VOLTAR");
+      },
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      return;
     }
 
 
@@ -108,7 +101,7 @@ Map<int, bool> avatar_check = {
     body: jsonEncode(data)
     );
 
-    if(response.statusCode == 200) {
+    if(response.statusCode == 201) { // 201 - Created
       jsonResponse = json.decode(response.body);
       if(jsonResponse != null) {
         setState(() {
@@ -116,14 +109,12 @@ Map<int, bool> avatar_check = {
         });
         sharedPreferences.setString("token", jsonResponse['token']);
 
-        // TODO: Clear text field - *This code does not work
-        nicknameController.clear();
-        emailController.clear();
-        passwordController.clear();
-        phoneController.clear();
-        bdayController.clear();
-
-        // TODO: display successful msg if reponse status is 200.
+        showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return displayAlert("Sucesso", "Usuário $nickname cadastrado com sucesso!");
+      },
+      );
       }
     }
     else {
@@ -200,28 +191,28 @@ final TextEditingController errorMessage = new TextEditingController();
     );
   }
 
-  Container checkBoxSection(int avatar_id) {
+  Container checkBoxSection(int avatarId) {
     return Container(
 
     child: Checkbox(
-          value: avatar_check[avatar_id], // NOTE: -2 because avatar list id starts in 2 (2,3,4,5)
+          value: avatar_check[avatarId], // NOTE: -2 because avatar list id starts in 2 (2,3,4,5)
           checkColor: Colors.white,
           activeColor: Colors.blue,
           onChanged: (value) {
             setState(() {
               
-              avatar_check[avatar_id] = value!;
+              avatar_check[avatarId] = value!;
               
               // deselect others checkBox - apply one the current checkBox
               for(var id in avatar_check.keys)
               {
-                if( id != avatar_id) {
+                if( id != avatarId) {
                   avatar_check[id] = false;
                 }
               }
 
               if( value ){
-                selected_avatar = avatar_id;
+                selected_avatar = avatarId;
               }
             });
           }),

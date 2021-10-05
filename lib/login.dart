@@ -34,14 +34,46 @@ class _LoginPageState extends State<LoginPage> {
             headerSection(),
             textSection(),
             buttonLogin(),
-            buttonGOTORegister()
+            buttonRegister()
           ],
         ),
       ),
     );
   }
 
+  AlertDialog displayAlert(String title, body_text, [button="OK"] ) {
+    AlertDialog alert = AlertDialog(
+    title: Text("$title"),
+    content: Text("$body_text"),
+    actions: [
+      TextButton(
+    child: Text("$button"),
+    onPressed: () { Navigator.pop(context);  },
+  ),
+  ],
+  );
+
+  return alert;
+  }
+
   signIn(String user, pass) async {
+
+    if( user.isEmpty || pass.isEmpty )
+    {
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return displayAlert("Alerta", "Preencha os campos!", "VOLTAR");
+      },
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      return;
+    }
+
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     Map data = {
       'SU_NICKNAME': user,
@@ -53,8 +85,9 @@ class _LoginPageState extends State<LoginPage> {
     body: jsonEncode(data)
     );
 
+    jsonResponse = json.decode(response.body);
+
     if(response.statusCode == 200) {
-      jsonResponse = json.decode(response.body);
       if(jsonResponse != null) {
         setState(() {
           _isLoading = false;
@@ -66,6 +99,19 @@ class _LoginPageState extends State<LoginPage> {
         sharedPreferences.setInt("user_id", jsonData['SU_ID']);
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
       }
+    }
+    else if(response.statusCode == 401){
+      String msg = jsonResponse['mensagem'];
+
+    showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return displayAlert("Alerta", msg, "VOLTAR");
+    },
+    );
+      setState(() {
+        _isLoading = false;
+      });
     }
     else {
       setState(() {
@@ -96,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-    Container buttonGOTORegister() {
+    Container buttonRegister() {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 40.0,

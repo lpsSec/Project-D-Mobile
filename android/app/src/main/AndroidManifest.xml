@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.Project_D_Mobile">
+    <uses-permission android:name="android.permission.WAKE_LOOK"/>
    <application
         android:label="Project_D_Mobile"
         android:icon="@mipmap/ic_launcher">

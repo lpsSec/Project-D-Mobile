@@ -25,30 +25,6 @@ bool _isLoading = false;
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
 
-  /* TEST - material app to use scaffoldMessengerKey - Display message error
-  return MaterialApp(
-    scaffoldMessengerKey: _messangerKey,
-      home: Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              colors: [Colors.purple, Colors.purple.shade400],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter),
-        ),
-        child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
-          children: <Widget>[
-            headerSection(),
-            textSection(),
-            avatarContainer(),
-            buttonRegister(),
-            buttonReturn(),
-          ],
-        ),
-      ),
-    ),
-  );
-  */
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -69,28 +45,47 @@ bool _isLoading = false;
     );
   }
 
-  editUserInfo(String nickname, login, password, phoneNumber ) async { /*NOTE: API needs SU_TYPE */
+  AlertDialog displayAlert(String title, body_text, [button="OK"] ) {
+    AlertDialog alert = AlertDialog(
+    title: Text("$title"),
+    content: Text("$body_text"),
+    actions: [
+      TextButton(
+    child: Text("$button"),
+    onPressed: () { Navigator.pop(context);  },
+  ),
+  ],
+  );
+
+  return alert;
+  }
+
+  editUserInfo(String nickname, login, password, phoneNumber ) async {
     
-    if(nickname == "" || login == "" || password == "" || phoneNumber == "" ){
-        /* ON HOLD - Display error message
-        _messangerKey.currentState?.showSnackBar(SnackBar(
-        content: Text('Preencha os campos!'),
-        duration: Duration(seconds: 3),
-        // action: SnackBarAction(label: 'OK', onPressed: () {
-        //           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => RegisterPage()), (Route<dynamic> route) => false);
-        //         }),
-        ));
-        */
-        // return;
+    if(nickname == "" && login == "" && password == "" && phoneNumber == "" ){
+
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return displayAlert("Alerta", "Preencha os campos!");
+      },
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      return;
+
     }
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   var token = sharedPreferences.getString("token");
-  var user_id = sharedPreferences.getInt("user_id");
+  var userId = sharedPreferences.getInt("user_id");
 
   // Create json map according data received
   Map data = {
-    'SU_ID': user_id
+    'SU_ID': userId
   };
   if( nickname != "" ){
     data['SU_NICKNAME'] = nickname;}
@@ -118,13 +113,13 @@ bool _isLoading = false;
         });
         sharedPreferences.setString("token", jsonResponse['token']);
 
-        // TODO: Clear text field - *This code does not work
-        nicknameController.clear();
-        emailController.clear();
-        passwordController.clear();
-        phoneController.clear();
+        showDialog(
+        context: context,
+        builder: (BuildContext context) {
+        return displayAlert("Sucesso", "Usuário modificado com sucesso!");
+      },
+      );
 
-        // TODO: display successful msg if reponse status is 200.
       }
     }
     else {

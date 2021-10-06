@@ -158,11 +158,6 @@ final TextEditingController errorMessage = new TextEditingController();
           setState(() {
             _isLoading = true;
           });
-          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //       content: Text('Added added into cart'),
-          //       duration: Duration(seconds: 2)
-          //       // action: SnackBarAction(label: 'UNDO', onPressed: () {}),
-          //     ));
           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => LoginPage()), (Route<dynamic> route) => false);
         },
         elevation: 0.0,

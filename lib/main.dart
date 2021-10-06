@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:http/http.dart' as http;
 import 'package:Project_D_Mobile/login.dart';
+import 'package:Project_D_Mobile/select_chapter.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Manga{
+class Manga {
     final int id;
     final String title;
     final String img_path;
@@ -37,7 +38,7 @@ class Manga{
     Manga( this.id, this.title, this.img_path, this.num_chapters, this.archive );
 }
 
-Card mangaCard(String title, String imgPath, int numChapters, String archive) {
+Card mangaCard(int ID, String title, String imgPath, int numChapters, String archive, BuildContext context) {
     var bgImg = NetworkImage(imgPath);
     var description = 'Descrição padrão do manga.';
     
@@ -72,7 +73,9 @@ Card mangaCard(String title, String imgPath, int numChapters, String archive) {
                   child: const Text('LER', textScaleFactor: 1.5),
                   onPressed: () async {
                     // launch(archive);
-                    debugPrint("Manga clicked: $title \nArchive: $archive\n\n");
+                    // debugPrint("Manga clicked: $title \nArchive: $archive\n\n");
+
+                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => SelChapterPage(ID)), (Route<dynamic> route) => false);
 
                     {//TEST
                     // late SharedPreferences sharedPreferences;
@@ -197,13 +200,14 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
   return ListView.builder(
     itemCount: snapshot.data.length,
     itemBuilder: (BuildContext context, int index){
+      int id = snapshot.data[index].id;
       String title = snapshot.data[index].title;
       String link = snapshot.data[index].archive;
       String img = snapshot.data[index].img_path;
-      int num_chapters = snapshot.data[index].num_chapters;
+      int numChapters = snapshot.data[index].num_chapters;
 
       // using card
-      return mangaCard(title, img, num_chapters, link );
+      return mangaCard(id, title, img, numChapters, link, context);
     }
   );
 },

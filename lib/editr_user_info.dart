@@ -1,14 +1,11 @@
 import 'dart:convert';
-import 'dart:html';
-import 'dart:io';
 
-import 'package:Project_D_Mobile/login.dart';
 import 'package:Project_D_Mobile/main.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:http/http.dart' as http;
-import 'package:Project_D_Mobile/editr_user_info.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
 
 class EditPage extends StatefulWidget {
@@ -87,15 +84,31 @@ bool _isLoading = false;
   Map data = {
     'SU_ID': userId
   };
+  Map passData = {
+      'SU_ID': userId
+  };
+  
   if( nickname != "" ){
     data['SU_NICKNAME'] = nickname;}
   if( login != "" ){
     data['SU_LOGINNAME'] = login;}
-  if( password != "" ){
-    data['SU_PASSWORD'] = password;}
   if( phoneNumber != "" ){
     data['SU_PHONENUMBER'] = phoneNumber;}
+
+  if( password != "" ){
+    passData['SU_PASSWORD'] = password;}
     
+    // Change passowrd request
+    var jsonResponsePass = null;
+    var responsePass = await http.post("https://project-d-api.herokuapp.com/user/editPass",
+    headers: {
+      "Content-Type": "application/json",
+    "Authorization": 'Baerer ' + token.toString()
+    },
+    body: jsonEncode(passData)
+    );
+
+    // Change other information request
     var jsonResponse = null;
     var response = await http.post("https://project-d-api.herokuapp.com/user/edit",
     headers: {
@@ -105,13 +118,16 @@ bool _isLoading = false;
     body: jsonEncode(data)
     );
 
-    if(response.statusCode == 201) { //201 - HTTP Response 'Created'
+    if(response.statusCode == 201 || responsePass.statusCode == 202) { //201 - 'Created' | 202 - 'Accepted'
       jsonResponse = json.decode(response.body);
-      if(jsonResponse != null) {
+      jsonResponsePass = json.decode(responsePass.body);
+
+      if(jsonResponse != null || jsonResponsePass != null) {
         setState(() {
           _isLoading = false;
         });
-        sharedPreferences.setString("token", jsonResponse['token']);
+      jsonResponse != null?sharedPreferences.setString("token", jsonResponse['token']):
+                          sharedPreferences.setString("token", jsonResponsePass['token']);
 
         showDialog(
         context: context,
@@ -126,7 +142,7 @@ bool _isLoading = false;
       setState(() {
         _isLoading = false;
       });
-      print(response.body);
+      // print(response.body);
     }
   }
 

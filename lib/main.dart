@@ -1,19 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'dart:convert';
-import 'dart:html';
 import 'dart:async';
 
 import 'package:Project_D_Mobile/editr_user_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:http/http.dart' as http;
 import 'package:Project_D_Mobile/login.dart';
+// ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_linkify/flutter_linkify.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:advance_pdf_viewer/advance_pdf_viewer.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 void main() => runApp(MyApp());
 
@@ -31,20 +27,18 @@ class MyApp extends StatelessWidget {
   }
 }
 
-String manga_pdf_reading = "";
-
 class Manga{
     final int id;
     final String title;
     final String img_path;
-    final int chapter;
+    final int num_chapters;
     final String archive;
 
-    Manga( this.id, this.title, this.img_path, this.chapter, this.archive );
+    Manga( this.id, this.title, this.img_path, this.num_chapters, this.archive );
 }
 
-Card mangaCard(String title, String img_path, int chapter, String archive) {
-    var bg_img = NetworkImage(img_path);
+Card mangaCard(String title, String imgPath, int numChapters, String archive) {
+    var bgImg = NetworkImage(imgPath);
     var description = 'Descrição padrão do manga.';
     
     return Card(
@@ -59,23 +53,45 @@ Card mangaCard(String title, String img_path, int chapter, String archive) {
             Container(
               height: 200.0,
               child: Ink.image(
-                image: bg_img,
+                image: bgImg,
                 fit: BoxFit.cover,
               ),
             ),
             Container(
               padding: EdgeInsets.all(16.0),
               alignment: Alignment.centerLeft,
-              child: Text(description),
+              child: Column(children: [
+                Container(child: Text(description),),
+                SizedBox(height: 10),
+                Container(child: Text("Quantidade de capitulos: $numChapters."))
+              ],)
             ),
             ButtonBar(
               children: [
                 TextButton(
-                  child: const Text('LER'),
-                  onPressed: () {
+                  child: const Text('LER', textScaleFactor: 1.5),
+                  onPressed: () async {
                     // launch(archive);
-                    debugPrint("Manga clicked: $title \nArchive: $archive");
-                    manga_pdf_reading = archive;
+                    debugPrint("Manga clicked: $title \nArchive: $archive\n\n");
+
+                    {//TEST
+                    // late SharedPreferences sharedPreferences;
+                    //   sharedPreferences = await SharedPreferences.getInstance();
+                    //   var token = sharedPreferences.getString("token");
+
+                    //     var jsonResponse = null;int id = 1;
+                    //     var response = await http.get("https://project-d-api.herokuapp.com/manga/chapters/$id",
+                    //     headers: {
+                    //       "Authorization": 'Baerer ' + token.toString()
+                    //     },
+                    //     );
+                    //     jsonResponse = json.decode(response.body);
+                    //     debugPrint("MANGA INFO: $jsonResponse");
+                    }
+
+                   //TODO: Go to 'select chapters page' passing manga id as parameter to get all manga chapters.
+                   //
+                   // 
                     },
                 ),
               ],
@@ -184,9 +200,10 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
       String title = snapshot.data[index].title;
       String link = snapshot.data[index].archive;
       String img = snapshot.data[index].img_path;
+      int num_chapters = snapshot.data[index].num_chapters;
 
       // using card
-      return mangaCard(title, img, 1, link);
+      return mangaCard(title, img, num_chapters, link );
     }
   );
 },
@@ -216,10 +233,10 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
     );
   }
   
-  AlertDialog displayAlert(String title, body_text, [button="OK"] ) {
+  AlertDialog displayAlert(String title, bodyText, [button="OK"] ) {
     AlertDialog alert = AlertDialog(
     title: Text("$title"),
-    content: Text("$body_text"),
+    content: Text("$bodyText"),
     actions: [
       TextButton(
     child: Text("$button"),
@@ -276,14 +293,14 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
           int ID = item['MG_ID'];
           var title = item['MG_TITLE'];
           var imgPath = item['MGP_PATH'];
-          var chapter = item['MGC_SEQCHAPTER'];
+          var numChapters = item['MGC_SEQCHAPTER'];
           var archive = item['MGC_ARCHIVE'];
 
           debugPrint("ID: $ID");
           debugPrint("Title: $title");
           debugPrint("Img Path: $imgPath");
           debugPrint("Archive: $archive");
-          debugPrint("Chapters: $chapter\n\n");
+          debugPrint("Chapters: $numChapters\n\n");
 
           Manga manga = Manga(item['MG_ID'],
                               item['MG_TITLE'],

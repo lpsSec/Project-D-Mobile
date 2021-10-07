@@ -16,14 +16,14 @@ Card chapterCard(int chapterId, String archive, String title, BuildContext conte
           children: [
             ListTile(
               title: Text(title),
-              trailing: Icon(Icons.menu_book_rounded),
+              trailing: Icon(Icons.library_books),
             ),
             Container(
               padding: EdgeInsets.all(16.0),
               alignment: Alignment.centerLeft,
               child: Column(children: [
                 SizedBox(height: 10),
-                Container(child: Text("Capitulo número: $chapterId"))
+                Container(child: Text("Capítulo número: $chapterId"))
               ],)
             ),
             ButtonBar(
@@ -32,6 +32,7 @@ Card chapterCard(int chapterId, String archive, String title, BuildContext conte
                   child: const Text('LER', textScaleFactor: 1.5),
                   onPressed: () async {
                     //TODO: open manga arhive with some PDF Reader.
+                    debugPrint("Must open $archive");
                     },
                 ),
               ],
@@ -60,7 +61,7 @@ class Chapters {
 
 class _SelChapterPageState extends State<SelChapterPage> {
 
-  final bool _isLoading = false;
+  bool _isLoading = false;
   late SharedPreferences sharedPreferences;
 
   @override
@@ -72,7 +73,7 @@ class _SelChapterPageState extends State<SelChapterPage> {
     .addPostFrameCallback( (_) => runChapters(widget.mangaID));
   }
 
-  final List<Chapters> mangaChapters = []; 
+  final List<Chapters> mangaChapters = [];
 
   Future<List<Chapters>> _getChaters() async {
 
@@ -92,12 +93,32 @@ class _SelChapterPageState extends State<SelChapterPage> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
-        child: _isLoading ? Center(child: CircularProgressIndicator()) : ListView(
+        child: Column(
           children: <Widget>[
-            headerSection()
+            headerSection(),
+            Expanded(child: _isLoading ? Center(child: CircularProgressIndicator()) :
+            mangaChapters.isEmpty? Text("Nenhum capítulo encontrado."): 
+            FutureBuilder(
+            initialData: [],
+            future: _getChaters(), 
+            builder: (BuildContext context, AsyncSnapshot snapshot ){
+              return ListView.builder(
+                itemCount: snapshot.data.length,
+                itemBuilder: (BuildContext context, int index){
+            
+            int id = snapshot.data[index].chapter_id;
+            String archive = snapshot.data[index].chapter_archive;
+            
+            // using card
+            return chapterCard(id, archive, widget.mangaTitle, context);
+                }
+              );
+            },
+            ),
+            )
           ],
         ),
-      ),
+      )
     );
   }
 
@@ -112,20 +133,38 @@ class _SelChapterPageState extends State<SelChapterPage> {
       "Authorization": 'Baerer ' + token.toString()
     },
     );
-    jsonResponse = json.decode(response.body);
 
-    var jsonData = jsonResponse['data'];
+    if(response.statusCode == 200) {
+      jsonResponse = json.decode(response.body);
+      if(jsonResponse != null) {
+        setState(() {
+          _isLoading = false;
+        });
 
-    for (var item in jsonData)
-    {
-      int id = jsonData['MGC_ID'];
-      String archive = jsonData['MGC_ARCHIVE'];
+      var jsonData = jsonResponse['data'];
 
-      Chapters chapter = Chapters(id, archive );
-      mangaChapters.add( chapter );
+      //Clear chapters list
+      mangaChapters.clear();
+
+      // Looping through all response itens
+      for (var item in jsonData) {
+        int id = item['MGC_ID'];
+        String archive = item['MGC_ARCHIVE'];
+
+        Chapters chapter = Chapters(id, archive );
+        mangaChapters.add( chapter );
+
+        debugPrint("\n\nCapitulo: $id | Arhcive: $archive\n");
+
+        }
+      }
     }
-
-    debugPrint("\n\nManga Chapters: $jsonData\n");
+    else {
+      setState(() {
+        _isLoading = false;
+      });
+      print(response.body);
+    }
   }
 
   checkLoginStatus() async {
@@ -151,17 +190,17 @@ class _SelChapterPageState extends State<SelChapterPage> {
   }
 
   Row headerSection() {
-
     return Row(
       children: [
         IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       iconSize: 40,
-      color: Colors.white,
+      color: Colors.black,
       onPressed: (){
         Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
       },
     ),
+    const Text("Voltar ao menu",style: TextStyle(fontWeight: FontWeight.bold))
       ],
     );
   }

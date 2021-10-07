@@ -15,7 +15,6 @@ class EditPage extends StatefulWidget {
 
 class _RegisterPageState extends State<EditPage> {
 
-//final _messangerKey = GlobalKey<ScaffoldMessengerState>();
 bool _isLoading = false;
 
   @override
@@ -179,12 +178,6 @@ final TextEditingController errorMessage = new TextEditingController();
           setState(() {
             _isLoading = true;
           });
-          // TEST
-          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //       content: Text('xxxxxxxxxxxxxxx'),
-          //       duration: Duration(seconds: 2)
-          //       // action: SnackBarAction(label: 'OK', onPressed: () {}),
-          //     ));
           Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
         },
         elevation: 0.0,

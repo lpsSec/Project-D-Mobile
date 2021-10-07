@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:async';
+import 'dart:js_util';
 
 import 'package:Project_D_Mobile/editr_user_info.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,6 @@ Card mangaCard(int ID, String title, String imgPath, int numChapters, String arc
           children: [
             ListTile(
               title: Text(title),
-              // subtitle: Text(subheading),
               trailing: Icon(Icons.menu_book_rounded),
             ),
             Container(
@@ -64,37 +64,16 @@ Card mangaCard(int ID, String title, String imgPath, int numChapters, String arc
               child: Column(children: [
                 Container(child: Text(description),),
                 SizedBox(height: 10),
-                Container(child: Text("Quantidade de capitulos: $numChapters."))
+                Container(child: Text("Quantidade de capitulos: $numChapters"))
               ],)
             ),
             ButtonBar(
               children: [
                 TextButton(
-                  child: const Text('LER', textScaleFactor: 1.5),
+                  child: const Text('ABRIR', textScaleFactor: 1.5),
                   onPressed: () async {
-                    // launch(archive);
-                    // debugPrint("Manga clicked: $title \nArchive: $archive\n\n");
-
-                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => SelChapterPage(ID)), (Route<dynamic> route) => false);
-
-                    {//TEST
-                    // late SharedPreferences sharedPreferences;
-                    //   sharedPreferences = await SharedPreferences.getInstance();
-                    //   var token = sharedPreferences.getString("token");
-
-                    //     var jsonResponse = null;int id = 1;
-                    //     var response = await http.get("https://project-d-api.herokuapp.com/manga/chapters/$id",
-                    //     headers: {
-                    //       "Authorization": 'Baerer ' + token.toString()
-                    //     },
-                    //     );
-                    //     jsonResponse = json.decode(response.body);
-                    //     debugPrint("MANGA INFO: $jsonResponse");
-                    }
-
-                   //TODO: Go to 'select chapters page' passing manga id as parameter to get all manga chapters.
-                   //
-                   // 
+                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:
+                    (BuildContext context) => SelChapterPage(ID, title)), (Route<dynamic> route) => false);
                     },
                 ),
               ],
@@ -125,6 +104,9 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     checkLoginStatus();
+
+    WidgetsBinding.instance!
+    .addPostFrameCallback( (_) => searchForManga("") );
   }
 
   final TextEditingController searchController = new TextEditingController();
@@ -299,12 +281,6 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
           var imgPath = item['MGP_PATH'];
           var numChapters = item['MGC_SEQCHAPTER'];
           var archive = item['MGC_ARCHIVE'];
-
-          debugPrint("ID: $ID");
-          debugPrint("Title: $title");
-          debugPrint("Img Path: $imgPath");
-          debugPrint("Archive: $archive");
-          debugPrint("Chapters: $numChapters\n\n");
 
           Manga manga = Manga(item['MG_ID'],
                               item['MG_TITLE'],

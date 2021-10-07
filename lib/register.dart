@@ -51,10 +51,10 @@ Map<int, bool> avatar_check = {
     );
   }
 
-  AlertDialog displayAlert(String title, body_text, [button="OK"] ) {
+  AlertDialog displayAlert(String title, bodyText, [button="OK"] ) {
     AlertDialog alert = AlertDialog(
     title: Text("$title"),
-    content: Text("$body_text"),
+    content: Text("$bodyText"),
     actions: [
       TextButton(
     child: Text("$button"),

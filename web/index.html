@@ -14,7 +14,11 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
+  <!-- Flutter 2.5.0-->
   <base href="$FLUTTER_BASE_HREF">
+
+  <!-- Flutter > 2.2.3-->
+  <!-- <base href="/"> -->
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -97,5 +101,9 @@
       loadMainDartJs();
     }
   </script>
+         <script src="//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.min.js"></script>
+         <script type="text/javascript">
+            pdfjsLib.GlobalWorkerOptions.workerSrc = "//cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.worker.min.js";
+         </script>
 </body>
 </html>

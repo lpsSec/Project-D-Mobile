@@ -8,8 +8,9 @@ import 'package:Project_D_Mobile/login.dart';
 import 'package:http/http.dart' as http;
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:Project_D_Mobile/pdf_visualizer.dart';
 
-Card chapterCard(int chapterId, String archive, String title, BuildContext context) {
+Card chapterCard(int mangaId, int chapterId, String archive, String title, BuildContext context) {
     return Card(
         elevation: 4.0,
         child: Column(
@@ -33,6 +34,10 @@ Card chapterCard(int chapterId, String archive, String title, BuildContext conte
                   onPressed: () async {
                     //TODO: open manga arhive with some PDF Reader.
                     debugPrint("Must open $archive");
+
+                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:
+                    (BuildContext context) => PdfVisualizer(mangaId, archive,title)), (Route<dynamic> route) => false);
+
                     },
                 ),
               ],
@@ -53,10 +58,11 @@ class SelChapterPage extends StatefulWidget {
 }
 
 class Chapters {
+    final int mangaId;
     final int chapter_id;
     final String chapter_archive;
 
-    Chapters( this.chapter_id, this.chapter_archive);
+    Chapters( this.mangaId, this.chapter_id, this.chapter_archive);
 }
 
 class _SelChapterPageState extends State<SelChapterPage> {
@@ -86,7 +92,8 @@ class _SelChapterPageState extends State<SelChapterPage> {
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
-      body: Container(
+      body:
+       Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
               colors: [Colors.purple, Colors.purple.shade400],
@@ -105,12 +112,12 @@ class _SelChapterPageState extends State<SelChapterPage> {
               return ListView.builder(
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index){
-            
-            int id = snapshot.data[index].chapter_id;
+            int mangaId = snapshot.data[index].mangaId;
+            int chapterId = snapshot.data[index].chapter_id;
             String archive = snapshot.data[index].chapter_archive;
             
             // using card
-            return chapterCard(id, archive, widget.mangaTitle, context);
+            return chapterCard(mangaId,chapterId, archive, widget.mangaTitle, context);
                 }
               );
             },
@@ -148,13 +155,14 @@ class _SelChapterPageState extends State<SelChapterPage> {
 
       // Looping through all response itens
       for (var item in jsonData) {
-        int id = item['MGC_ID'];
+        int managaId = item['MG_ID'];
+        int chapterId = item['MGC_ID'];
         String archive = item['MGC_ARCHIVE'];
 
-        Chapters chapter = Chapters(id, archive );
+        Chapters chapter = Chapters(managaId, chapterId, archive );
         mangaChapters.add( chapter );
 
-        debugPrint("\n\nCapitulo: $id | Arhcive: $archive\n");
+        debugPrint("\n\nManga: $managaId | Capitulo: $chapterId | Arhcive: $archive\n");
 
         }
       }
@@ -197,7 +205,8 @@ class _SelChapterPageState extends State<SelChapterPage> {
       iconSize: 40,
       color: Colors.black,
       onPressed: (){
-        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
+        Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:
+        (BuildContext context) => MainPage()), (Route<dynamic> route) => false);
       },
     ),
     const Text("Voltar ao menu",style: TextStyle(fontWeight: FontWeight.bold))

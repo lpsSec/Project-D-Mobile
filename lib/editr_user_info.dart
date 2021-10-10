@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class EditPage extends StatefulWidget {
   @override
@@ -74,6 +75,28 @@ bool _isLoading = false;
       return;
 
     }
+
+  //Validate inputs
+  //email
+  Pattern mailPattern = r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                        r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+                        r"{0,253}[a-zA-Z0-9])?)*$";
+  RegExp regex = RegExp(mailPattern.toString());
+  if (!regex.hasMatch(login))
+  {
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return displayAlert("Alerta", "Email inválido!", "VOLTAR");
+      },
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      return;
+  }
 
   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
   var token = sharedPreferences.getString("token");
@@ -216,7 +239,7 @@ final TextEditingController errorMessage = new TextEditingController();
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.email, color: Colors.white70),
-              hintText: "Novo Email",
+              hintText: "Novo Email (Ex: exemplo@dominio.com)",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -236,11 +259,14 @@ final TextEditingController errorMessage = new TextEditingController();
             SizedBox(height: 30.0),
             TextFormField(
             controller: phoneController,
+            inputFormatters: [
+              MaskTextInputFormatter(mask: '(##)#####-####', filter: { "#": RegExp(r'[0-9]')}),
+            ],
             cursorColor: Colors.white,
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.phone, color: Colors.white70),
-              hintText: "Novo Telefone",
+              hintText: "Novo Telefone (Ex: (00)-00000-0000)",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),

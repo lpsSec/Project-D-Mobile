@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -84,6 +85,27 @@ Map<int, bool> avatar_check = {
       return;
     }
 
+    //Validate inputs
+    //email
+    Pattern mailPattern = r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]"
+        r"{0,253}[a-zA-Z0-9])?)*$";
+    RegExp regex = RegExp(mailPattern.toString());
+    if (!regex.hasMatch(login))
+    {
+      showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return displayAlert("Alerta", "Email inválido!", "VOLTAR");
+      },
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      return;
+    }
 
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     Map data = {
@@ -107,7 +129,7 @@ Map<int, bool> avatar_check = {
         setState(() {
           _isLoading = false;
         });
-        sharedPreferences.setString("token", jsonResponse['token']);
+        // sharedPreferences.setString("token", jsonResponse['token']);
 
         showDialog(
       context: context,
@@ -271,7 +293,7 @@ final TextEditingController errorMessage = new TextEditingController();
             style: TextStyle(color: Colors.white70),
             decoration: InputDecoration(
               icon: Icon(Icons.email, color: Colors.white70),
-              hintText: "Email",
+              hintText: "Email (Ex: exemplo@dominio.com)",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
@@ -281,33 +303,39 @@ final TextEditingController errorMessage = new TextEditingController();
             controller: passwordController,
             cursorColor: Colors.white,
             style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               icon: Icon(Icons.lock, color: Colors.white70),
               hintText: "Senha",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
             ),
-            SizedBox(height: 30.0),
+            const SizedBox(height: 30.0),
             TextFormField(
             controller: phoneController,
+              inputFormatters: [
+              MaskTextInputFormatter(mask: '(##)#####-####', filter: { "#": RegExp(r'[0-9]')}),
+            ],
             cursorColor: Colors.white,
-            style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
+            style: const TextStyle(color: Colors.white70),
+            decoration: const InputDecoration(
               icon: Icon(Icons.phone, color: Colors.white70),
-              hintText: "Telefone",
+              hintText: "Telefone (Ex: (00)-00000-0000)",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),
             ),
-            SizedBox(height: 30.0),
+            const SizedBox(height: 30.0),
             TextFormField(
             controller: bdayController,
+            inputFormatters: [
+              MaskTextInputFormatter(mask: '##/##/####', filter: { "#": RegExp(r'[0-9]')}),
+            ],
             cursorColor: Colors.white,
             style: TextStyle(color: Colors.white70),
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               icon: Icon(Icons.date_range, color: Colors.white70),
-              hintText: "Data de aniverssario",
+              hintText: "Data de aniverssario (Ex: 00/00/0000)",
               border: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white70)),
               hintStyle: TextStyle(color: Colors.white70),
             ),

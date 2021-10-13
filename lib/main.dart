@@ -2,7 +2,7 @@
 
 import 'dart:convert';
 import 'dart:async';
-import 'dart:js_util';
+// import 'dart:js_util';
 
 import 'package:Project_D_Mobile/editr_user_info.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +42,10 @@ class Manga {
 Card mangaCard(int ID, String title, String imgPath, int numChapters, String archive, BuildContext context) {
     var bgImg = NetworkImage(imgPath);
     var description = 'Descrição padrão do manga.';
+
+    if( numChapters == null) {
+      numChapters = 0;
+    }
     
     return Card(
         elevation: 4.0,

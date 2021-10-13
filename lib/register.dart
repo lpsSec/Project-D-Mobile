@@ -129,6 +129,7 @@ Map<int, bool> avatar_check = {
         setState(() {
           _isLoading = false;
         });
+        // REVIEW: store auth token?? - user is able to be login with do login.
         // sharedPreferences.setString("token", jsonResponse['token']);
 
         showDialog(
@@ -190,11 +191,10 @@ final TextEditingController errorMessage = new TextEditingController();
     );
   }
 
-  Container avatarContainer() {
-    return Container(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
+  SizedBox avatarContainer() {
+    return SizedBox.fromSize(
+      child: FittedBox(child:
+          Row(children: <Widget>[
           checkBoxSection(2),
           avatarSection('assets/images/avatar.png'),
           checkBoxSection(3),
@@ -203,15 +203,14 @@ final TextEditingController errorMessage = new TextEditingController();
           avatarSection('assets/images/avatarWoman.png'),
           checkBoxSection(5),
           avatarSection('assets/images/avatarWoman2.png'),
-        ]
-      ),
+        ]),
+        fit: BoxFit.contain,
+        )
     );
   }
 
-  Container checkBoxSection(int avatarId) {
-    return Container(
-
-    child: Checkbox(
+  Checkbox checkBoxSection(int avatarId) {
+    return Checkbox(
           value: avatar_check[avatarId], // NOTE: -2 because avatar list id starts in 2 (2,3,4,5)
           checkColor: Colors.white,
           activeColor: Colors.blue,
@@ -232,15 +231,12 @@ final TextEditingController errorMessage = new TextEditingController();
                 selected_avatar = avatarId;
               }
             });
-          }),
-
-    );
+          });
   }
-  Container avatarSection(String imagePath) {
-    var assetsImage = new AssetImage(imagePath);
+  SizedBox avatarSection(String imagePath) {
+    var assetsImage = AssetImage(imagePath);
 
-    return Container(
-    child: SizedBox(
+    return SizedBox(
     child: CircleAvatar(
       radius: 40.0,
       backgroundColor: Colors.white,
@@ -260,8 +256,7 @@ final TextEditingController errorMessage = new TextEditingController();
         radius: 38.0,
         backgroundImage: assetsImage,
       ),
-    ),)
-    );
+    ),);
   }
 
   final TextEditingController nicknameController = new TextEditingController();
@@ -347,9 +342,9 @@ final TextEditingController errorMessage = new TextEditingController();
 
   Container headerSection() {
     return Container(
-      margin: EdgeInsets.only(top: 0.0),
-      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
-      child: Text("Realizar cadastro",
+      margin: const EdgeInsets.only(top: 0.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 30.0),
+      child: const Text("Realizar cadastro",
           style: TextStyle(
               color: Colors.white70,
               fontSize: 40.0,

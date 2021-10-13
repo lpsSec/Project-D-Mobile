@@ -33,7 +33,7 @@ Card chapterCard(int mangaId, int chapterId, String archive, String title, Build
                   child: const Text('LER', textScaleFactor: 1.5),
                   onPressed: () async {
                     //TODO: open manga arhive with some PDF Reader.
-                    debugPrint("Must open $archive");
+                    // debugPrint("Must open $archive");
 
                     Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder:
                     (BuildContext context) => PdfVisualizer(mangaId, archive,title)), (Route<dynamic> route) => false);
@@ -162,7 +162,8 @@ class _SelChapterPageState extends State<SelChapterPage> {
         Chapters chapter = Chapters(managaId, chapterId, archive );
         mangaChapters.add( chapter );
 
-        debugPrint("\n\nManga: $managaId | Capitulo: $chapterId | Arhcive: $archive\n");
+        // DEBUG
+        // debugPrint("\n\nManga: $managaId | Capitulo: $chapterId | Arhcive: $archive\n");
 
         }
       }
@@ -200,6 +201,7 @@ class _SelChapterPageState extends State<SelChapterPage> {
   Row headerSection() {
     return Row(
       children: [
+        const SizedBox(height: 100),
         IconButton(
       icon: const Icon(Icons.arrow_back),
       iconSize: 40,

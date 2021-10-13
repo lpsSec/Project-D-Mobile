@@ -1,14 +1,10 @@
-// ignore: import_of_legacy_library_into_null_safe
-import 'dart:html' as html;
+// import 'dart:html' as html;
+// NOTE: disabled - supported on web device only.
 
-// import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-// import 'package:webview_flutter/webview_flutter.dart';
-// import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-// import 'package:flutter_plugin_pdf_viewer/flutter_plugin_pdf_viewer.dart';
-// ignore: import_of_legacy_library_into_null_safe
+
+// ignore_for_file: import_of_legacy_library_into_null_safe
+
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,53 +29,15 @@ class _PdfVisualizerState extends State<PdfVisualizer> {
 
   String url = "http://www.africau.edu/images/default/sample.pdf";
   String asset = "assets/sample.pdf";
-  // late PDFDocument _doc;
 
   @override
   void initState() {
     super.initState();
     checkLoginStatus();
-
-
-
-    // _initPDF();
-
-    _launchePDF();
-
   }
-
-  _launchePDF() async {
-    html.window.open("https://docs.google.com/gview?embedded=true&url=http://www.africau.edu/images/default/sample.pdf", "name");
-
-    // String url = widget.chapterArchive;
-    // debugPrint("URL: $url");
-
-    // if( await canLaunch(url))
-    // {
-    //   launch(url, forceWebView: true,enableJavaScript: true);
-    // }
-    // else
-    // {
-    //   String debug = widget.chapterArchive;
-    //   debugPrint("CANNOT LAUNCH: $debug");
-    // } 
-  }
-
-  // _initPDF() async {
-  //   setState(() {
-  //     _isLoading = true; 
-  //   });
-  //   final doc = await PDFDocument.fromURL(widget.chapterArchive);
-  //   setState(() {
-  //     _doc = doc;
-  //     _isLoading = false;
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
-    final archive = widget.chapterArchive;
-    final title = widget.mangaTitle;
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(statusBarColor: Colors.transparent));
     return Scaffold(
@@ -91,17 +49,11 @@ class _PdfVisualizerState extends State<PdfVisualizer> {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter),
         ),
-        // WebView(
-          // initialUrl: ('https://docs.google.com/gview?embedded=true&url=http://www.africau.edu/images/default/sample.pdf'),
-          // javascriptMode: JavascriptMode.unrestricted,
-        // ),
         child: Column(
           children: [
             headerSection(),
-            Expanded(child: _isLoading ? Center(child: CircularProgressIndicator()) :
-            Text(""),
-            // PDFViewer(document: _doc),
-            // SfPdfViewer.network(widget.chapterArchive),
+            Expanded(child: _isLoading ? const Center(child: CircularProgressIndicator()) :
+            SfPdfViewer.network(widget.chapterArchive),
             ),
           ],
         )
@@ -119,6 +71,7 @@ class _PdfVisualizerState extends State<PdfVisualizer> {
    Row headerSection() {
     return Row(
       children: [
+        const SizedBox(height: 100),
         IconButton(
       icon: const Icon(Icons.arrow_back),
       iconSize: 40,

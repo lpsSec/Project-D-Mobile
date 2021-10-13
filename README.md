@@ -1,6 +1,6 @@
-# Project_D_Mobile
+# Projet D - Mobile
 
-A new Flutter project.
+Project developed for "Projeto D" subject.
 
 ## Getting Started
 

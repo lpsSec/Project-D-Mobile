@@ -110,7 +110,7 @@ class _MainPageState extends State<MainPage> {
     checkLoginStatus();
 
     WidgetsBinding.instance!
-    .addPostFrameCallback( (_) => searchForManga("") );
+    .addPostFrameCallback( (_) => searchForAllMangas() );
   }
 
   final TextEditingController searchController = new TextEditingController();
@@ -246,6 +246,10 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
   }
 
   searchForManga( String search ) async {
+    if( search == "" ) {
+      return;
+    }
+    
     sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString("token");
 
@@ -261,6 +265,60 @@ builder: (BuildContext context, AsyncSnapshot snapshot ){
       "Authorization": 'Baerer ' + token.toString()
     },
     body: jsonEncode(data)
+    );
+
+    if(response.statusCode == 200) {
+      jsonResponse = json.decode(response.body);
+      if(jsonResponse != null) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        var jsonData = jsonResponse['data'];
+
+        // DEBUG: display response
+        // debugPrint("\nSearch: $jsonData");
+
+        //Clear manga list
+        mangaList.clear();
+
+      // Looping through all response itens
+        for (var item in jsonData) {
+          int ID = item['MG_ID'];
+          var title = item['MG_TITLE'];
+          var imgPath = item['MGP_PATH'];
+          var numChapters = item['MGC_SEQCHAPTER'];
+          var archive = item['MGC_ARCHIVE'];
+
+          Manga manga = Manga(item['MG_ID'],
+                              item['MG_TITLE'],
+                              item['MGP_PATH'],
+                              item['MGC_SEQCHAPTER'],
+                              item['MGC_ARCHIVE']);
+
+          mangaList.add(manga);
+
+        }
+      }
+    }
+    else {
+      setState(() {
+        _isLoading = false;
+      });
+      print(response.body);
+    }
+  }
+
+    searchForAllMangas() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString("token");
+
+    var jsonResponse = null;
+    var response = await http.get("https://project-d-api.herokuapp.com/manga/",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": 'Baerer ' + token.toString()
+    },
     );
 
     if(response.statusCode == 200) {
